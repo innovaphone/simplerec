@@ -1,36 +1,64 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <voicemail xmlns="http://www.innovaphone.com/xsd/voicemail6.xsd">
-	<!-- =======================Subscript, $suburl contains script URL=========== -->
+  
     <function define="Subscript">
         <store-getstat root="" name="$suburl" out-error="$error"/>
-        <switch var="$error">
-            <case equal="0">
+	<switch var="$error">
+	       <case equal="0">
                 <exec url="$suburl"/>
             </case>
         </switch>
-    </function>
-	<!-- =======================Main Routine==================================== -->
+    </function>	
+
+<function define="FilterString">
+        <assign out="$i" value="1"/>
+        <assign out="$c" value=""/>
+	<assign out="$Filter" value=""/>
+        <index value="$string" pos="$i" size="1" out="$c"/>
+        <lib-strlen string="$c" out="$len-c" />
+        <while cond="$len-c">
+            <switch var="$c">
+                <case equal="*">
+                
+                </case>
+                <case equal="#">
+                   
+                </case>
+                <default>
+                     <lib-strcat string="$Filter" string2="$c" out-string="$Filter"/>
+                </default>
+            </switch>
+            <add value="$i" value2="1" out="$i"/>
+            <assign out="$c" value=""/>
+            <index value="$string" pos="$i" size="1" out="$c"/>
+            <lib-strlen string="$c" out="$len-c" />
+        </while>
+    </function>	
+
+<!-- =======================Main Routine==================================== -->
 	<function define="Main">
-	<!-- optional: send email for each recorded message. Change <assign out="$file" value=""/> to <assign out="$file" value="$vm"/> in email.xml and remove comment for the event type="call-end" below -->
-		
-		<event type="call-end">
+	<!-- optional: send email for each recorded message. Change <assign out="$file" value=""/> to <assign out="$file" value="$vm"/> in email.xml  -->
+	
+	<event type="call-end">
             <if cond="$vm">
                 <store-get root="" name="email.xml" out-url="$suburl" />
                 <call name="Subscript"/>
             </if>
         </event>
-	
-	
 		<pbx-getcallinfo out-cgpn="$cgpn" out-leg2="$leg2"/>
+		<assign out="$string" value="$leg2"/>
+		<call name="FilterString"/>
+		<assign out="$leg2" value="$Filter"/>
+
 		<pbx-finduser-e164 e164="$cgpn" out-cn="$cn" />
 		 <if cond="$cn">
 			<assign value="$cn" out="$cn_obj"/>
-        </if>
+        	</if>
 		<store-get root="" name="note.$coder" out-url="$ctrl" />
 		<pbx-prompt url="$ctrl" />
 		<assign out="$rctrl" value="Record_"/>
 		<lib-strcat string="$rctrl" string2="$cgpn" out-string="$rctrl" />
-		<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="_" out-string="$rctrl" />
 		<lib-strcat string="$rctrl" string2="$leg2" out-string="$rctrl" />
 		<store-getstat name="NULL" out-mday="$mday" out-mon="$mon" out-year="$year" out-hour="$hour" out-min="$min" />
 
@@ -62,15 +90,15 @@
 			</case>
 		</switch>
 
-		<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="_" out-string="$rctrl" />
 		<lib-strcat string="$rctrl" string2="$mday" out-string="$rctrl" />
-		<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="" out-string="$rctrl" />
 		<lib-strcat string="$rctrl" string2="$mon" out-string="$rctrl" />
-		<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="" out-string="$rctrl" />
 		<lib-strcat string="$rctrl" string2="$year" out-string="$rctrl" />
-		<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="_" out-string="$rctrl" />
 		<lib-strcat string="$rctrl" string2="$hour" out-string="$rctrl" />
-		<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="" out-string="$rctrl" />
 		<lib-strcat string="$rctrl" string2="$min" out-string="$rctrl" />
 		<lib-strcat string="$rctrl" string2="_" out-string="$rctrl" />
 
@@ -97,6 +125,6 @@
 		<pbx-disc/>
 	</function>
 </voicemail>
-<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,5,0 (C) innovaphone AG 2010-2014 -->
+<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,5,0 (C) innovaphone AG 2010-2017 -->
 
-<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,7,0 (C) innovaphone AG 2010-2016 -->
+<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,8,0 (C) innovaphone AG 2010-2017 -->
