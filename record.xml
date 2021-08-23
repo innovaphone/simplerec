@@ -11,17 +11,21 @@
     </function>
 	<!-- =======================Main Routine==================================== -->
 	<function define="Main">
-	<!-- optional: send email for each recorded message. Change <assign out="$file" value=""/> to <assign out="$file" value="$vm"/> in email.xml and remove comment for the event type="call-end" below-->
-		<!-- 
+	<!-- optional: send email for each recorded message. Change <assign out="$file" value=""/> to <assign out="$file" value="$vm"/> in email.xml and remove comment for the event type="call-end" below -->
+		
 		<event type="call-end">
             <if cond="$vm">
                 <store-get root="" name="email.xml" out-url="$suburl" />
                 <call name="Subscript"/>
             </if>
         </event>
-		-->
+	
+	
 		<pbx-getcallinfo out-cgpn="$cgpn" out-leg2="$leg2"/>
-		<pbx-finduser-e164 e164="$cgpn" out-cn="$cn_obj" />
+		<pbx-finduser-e164 e164="$cgpn" out-cn="$cn" />
+		 <if cond="$cn">
+			<assign value="$cn" out="$cn_obj"/>
+        </if>
 		<store-get root="" name="note.$coder" out-url="$ctrl" />
 		<pbx-prompt url="$ctrl" />
 		<assign out="$rctrl" value="Record_"/>
@@ -75,7 +79,7 @@
 			<add value="1" value2="$lCNT" out="$lCNT"/>
 			<lib-strcat string="$rctrl" string2="$lCNT" out-string="$Lctrl" />
 			<lib-strcat string="$Lctrl" string2=".G711a" out-string="$Lctrl" />
-			<store-getstat root="$cn_obj" name="$Lctrl" out-error="$error" />
+			<store-getstat root="$cn" name="$Lctrl" out-error="$error" />
 
 			<switch var="$error">
 				<case equal="2">
@@ -83,14 +87,16 @@
 				</case>
 			</switch>
 		</while>
-
-		<store-getstat root="$cn_obj" name="/" out-error="$error" />
+		
+		<store-getstat root="$cn" name="/" out-error="$error" />
 		<if cond="$error">
-			<store-mkdir root="$cn_obj" name="/"/>
+			<store-mkdir root="$cn" name="/"/>
 		</if>
-		<store-get root="$cn_obj" name="$Lctrl" out-url="$vm" />
+		<store-get root="$cn" name="$Lctrl" out-url="$vm" />
 			<pbx-record url="$vm" barge-in="false"/>
 		<pbx-disc/>
 	</function>
 </voicemail>
-<!-- Simple Recording with Voicemail XML Script wiki-src/xml/simplerec 1,0,6,0 (C) innovaphone AG 2010-2015 -->
+<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,5,0 (C) innovaphone AG 2010-2014 -->
+
+<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,7,0 (C) innovaphone AG 2010-2016 -->
