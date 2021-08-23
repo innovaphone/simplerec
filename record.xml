@@ -1,70 +1,96 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <voicemail xmlns="http://www.innovaphone.com/xsd/voicemail6.xsd">
-    <function define="Main">
-        <pbx-getcallinfo out-cgpn="$cgpn" out-leg2="$leg2"/>
-        <pbx-finduser-e164 e164="$cgpn" out-cn="$cn" />
- 	<store-get root="" name="note.$coder" out-url="$ctrl" /> 
-  	<pbx-prompt url="$ctrl" /> 
-	<assign out="$rctrl" value="Record_"/> 
-	<lib-strcat string="$rctrl" string2="$cgpn" out-string="$rctrl" />
-       	<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="$leg2" out-string="$rctrl" />
-	<store-getstat name="NULL" out-mday="$mday" out-mon="$mon" out-year="$year" out-hour="$hour" out-min="$min" /> 
-	<lib-strlen out="$res" string="$mday"/>
-	<switch var="$res">
-		<case equal="1">
-			<lib-strcat string="0" string2="$mday" out-string="$mday" />
-  		</case>
-	</switch>
-	<lib-strlen out="$res" string="$mon"/>
-	<switch var="$res">
-		<case equal="1">
-			<lib-strcat string="0" string2="$mon" out-string="$mon" />
-  		</case>
-	</switch>
-	<lib-strlen out="$res" string="$hour"/>
-	<switch var="$res">
-		<case equal="1">
-			<lib-strcat string="0" string2="$hour" out-string="$hour" />
-  		</case>
-	</switch>
-	<lib-strlen out="$res" string="$min"/>
-	<switch var="$res">
-		<case equal="1">
-			<lib-strcat string="0" string2="$min" out-string="$min" />
-  		</case>
-	</switch>
-	<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="$mday" out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="$mon" out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="$year" out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="$hour" out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="$min" out-string="$rctrl" />
-	<lib-strcat string="$rctrl" string2="_" out-string="$rctrl" />
-	<assign out="$doloop" value=""/> 
-	<while notcond="$doloop">
-		<add value="1" value2="$lCNT" out="$lCNT"/> 
-		<lib-strcat string="$rctrl" string2="$lCNT" out-string="$Lctrl" />
-		<lib-strcat string="$Lctrl" string2=".G711a" out-string="$Lctrl" />
-		<store-getstat root="$cgpn" name="$Lctrl" out-error="$error" /> 
-
-		<switch var="$error">
-			<case equal="2">
-				<assign out="$doloop" value="True"/> 
-  			</case>
-		</switch>
-	</while>
-	<store-getstat root="$cgpn" name="/" out-error="$error" /> 
-	<if cond="$error">
-		<store-mkdir root="$cgpn" name="/"/>  
-	</if>
-	<store-get root="$cgpn" name="$Lctrl" out-url="$ctrl" />
-        <pbx-record url="$ctrl" barge-in="false"/>
-	<pbx-disc/>
+	<!-- =======================Subscript, $suburl contains script URL=========== -->
+    <function define="Subscript">
+        <store-getstat root="" name="$suburl" out-error="$error"/>
+        <switch var="$error">
+            <case equal="0">
+                <exec url="$suburl"/>
+            </case>
+        </switch>
     </function>
+	<!-- =======================Main Routine==================================== -->
+	<function define="Main">
+	<!-- optional: send email for each recorded message. Change <assign out="$file" value=""/> to <assign out="$file" value="$vm"/> in email.xml and remove comment for the event type="call-end" below-->
+		<!-- 
+		<event type="call-end">
+            <if cond="$vm">
+                <store-get root="" name="email.xml" out-url="$suburl" />
+                <call name="Subscript"/>
+            </if>
+        </event>
+		-->
+		<pbx-getcallinfo out-cgpn="$cgpn" out-leg2="$leg2"/>
+		<pbx-finduser-e164 e164="$cgpn" out-cn="$cn" />
+		<store-get root="" name="note.$coder" out-url="$ctrl" />
+		<pbx-prompt url="$ctrl" />
+		<assign out="$rctrl" value="Record_"/>
+		<lib-strcat string="$rctrl" string2="$cgpn" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="$leg2" out-string="$rctrl" />
+		<store-getstat name="NULL" out-mday="$mday" out-mon="$mon" out-year="$year" out-hour="$hour" out-min="$min" />
+
+		<lib-strlen out="$res" string="$mday"/>
+		<switch var="$res">
+			<case equal="1">
+				<lib-strcat string="0" string2="$mday" out-string="$mday" />
+			</case>
+		</switch>
+
+		<lib-strlen out="$res" string="$mon"/>
+		<switch var="$res">
+			<case equal="1">
+				<lib-strcat string="0" string2="$mon" out-string="$mon" />
+			</case>
+		</switch>
+		
+		<lib-strlen out="$res" string="$hour"/>
+		<switch var="$res">
+			<case equal="1">
+				<lib-strcat string="0" string2="$hour" out-string="$hour" />
+			</case>
+		</switch>
+		
+		<lib-strlen out="$res" string="$min"/>
+		<switch var="$res">
+			<case equal="1">
+				<lib-strcat string="0" string2="$min" out-string="$min" />
+			</case>
+		</switch>
+
+		<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="$mday" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="$mon" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="$year" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="-" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="$hour" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="." out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="$min" out-string="$rctrl" />
+		<lib-strcat string="$rctrl" string2="_" out-string="$rctrl" />
+
+		<assign out="$doloop" value=""/>
+		<while notcond="$doloop">
+			<add value="1" value2="$lCNT" out="$lCNT"/>
+			<lib-strcat string="$rctrl" string2="$lCNT" out-string="$Lctrl" />
+			<lib-strcat string="$Lctrl" string2=".G711a" out-string="$Lctrl" />
+			<store-getstat root="$cn" name="$Lctrl" out-error="$error" />
+
+			<switch var="$error">
+				<case equal="2">
+					<assign out="$doloop" value="True"/>
+				</case>
+			</switch>
+		</while>
+
+		<store-getstat root="$cn" name="/" out-error="$error" />
+		<if cond="$error">
+			<store-mkdir root="$cn" name="/"/>
+		</if>
+		<store-get root="$cn" name="$Lctrl" out-url="$vm" />
+			<pbx-record url="$vm" barge-in="false"/>
+		<pbx-disc/>
+	</function>
 </voicemail>
-<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,2,0 (C) innovaphone AG 2010-2010 -->
+<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,5,0 (C) innovaphone AG 2010-2014 -->
