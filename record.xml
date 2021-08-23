@@ -50,10 +50,26 @@
 		<call name="FilterString"/>
 		<assign out="$leg2" value="$Filter"/>
 
+        <assign out="selective_recording" value="false"/> <!-- enable recording of selected cgpn only, that are placed in the subfolder "numbers" as TXT files like 10.txt 20.txt etc. -->
+        <if cond="$selective_recording">
+            <dbg string="Check number for recording: " string2="$leg2"/>
+            <store-getstat root="numbers" name="$leg2" out-wday="$wday" out-mday="$mday" out-mon="$mon" out-year="year" out-hour="$hour" out-min="$min" out-error="$error" out-size="$size" out-type="$type"/>
+            <dbg string="File check error: " string2="$out-error"/>
+            <switch  var="$error">
+                <case equal="0">
+                    <dbg string="Start recording for Number: " string2="$leg2"/>
+                </case>
+                <default>
+                    <dbg string="Number not listed for recording: " string2="$leg2"/>
+                    <pbx-disc/>
+                </default>
+            </switch>
+        </if>
+
 		<pbx-finduser-e164 e164="$cgpn" out-cn="$cn" />
 		 <if cond="$cn">
 			<assign value="$cn" out="$cn_obj"/>
-        	</if>
+        </if>
 		<store-get root="" name="note.$coder" out-url="$ctrl" />
 		<pbx-prompt url="$ctrl" />
 		<assign out="$rctrl" value="Record_"/>
@@ -127,4 +143,4 @@
 </voicemail>
 <!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,5,0 (C) innovaphone AG 2010-2017 -->
 
-<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,8,0 (C) innovaphone AG 2010-2017 -->
+<!-- Simple Recording with Voicemail XML Script wiki-src/xml/SimpleRec 1,0,10,0 (C) innovaphone AG 2010-2017 -->
